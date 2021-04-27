@@ -1,0 +1,60 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: inherit;
+}
+
+:root, body, #root, .full-screen {
+  height: 100%;
+  width: 100%;
+}
+
+.A {
+  display: flex;
+}
+
+.A__sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  background: darkslategrey;
+  color: #fff;
+  text-align: center;
+}
+
+.A__sidebar a {
+  margin: 10px 0;
+}
+
+.A__route-outlet {
+  padding: 40px;
+}
+
+.User-space {
+  display: flex;
+  flex-direction: column;
+}
+
+.User-space__header {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  background: black;
+  color: white;
+}
+
+.User-space__header a {
+  margin: 0 8px;
+}
+
+.User-space__router-outlet {
+  padding: 16px;
+}
+
+.User-todo-list {
+  display: flex;
+  flex-direction: column;
+}
