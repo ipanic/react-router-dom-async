@@ -1,4 +1,4 @@
-# react-router-dom-async
+# react-router-dom-asynchronously
 Addon for `react-router-dom`, which adds asynchrony to your routing
 Main goal of this package to have an ability to prefetch any data before transition to the next state.
 Loaded data will be passed as props

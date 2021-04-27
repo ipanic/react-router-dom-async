@@ -39,6 +39,10 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ipanic/react-router-dom-asynchronously.git"
+  },
   "name": "react-router-dom-asynchronously",
   "author": "Andrey Belov <pa-nic@yandex.ru>",
   "module": "dist/react-router-dom-async.esm.js",
