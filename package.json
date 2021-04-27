@@ -1,5 +1,5 @@
 {
-  "version": "5.0.0-rc.1",
+  "version": "5.0.0-rc.2",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -39,7 +39,7 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "name": "react-router-dom-async",
+  "name": "react-router-dom-asynchronously",
   "author": "Andrey Belov <pa-nic@yandex.ru>",
   "module": "dist/react-router-dom-async.esm.js",
   "devDependencies": {
