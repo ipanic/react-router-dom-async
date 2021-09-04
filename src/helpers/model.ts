@@ -1,7 +1,6 @@
 import { ComponentType, CSSProperties } from 'react';
-import { matchPath, RouteComponentProps } from 'react-router';
+import { matchPath } from 'react-router';
 import { Observable } from 'rxjs';
-import { IRouteSwitchStore } from '../async-switch/model';
 
 export type IUrlMatch = NonNullable<ReturnType<typeof matchPath>>;
 
@@ -23,12 +22,3 @@ export interface IRedirectRoute<TContext> {
 }
 
 export type IDeclaredRoute<TContext> = IAsyncRoute<TContext> | ISyncRoute | IRedirectRoute<TContext>;
-
-export interface ISharedRouterStore {
-
-  readonly pendingState: RouteComponentProps | null;
-
-  addChild(child: IRouteSwitchStore): void;
-
-  removeChild(child: IRouteSwitchStore): void;
-}

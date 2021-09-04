@@ -1,6 +1,6 @@
-export function findMap<T, U>(array: T[], map: (value: T) => (U | undefined)): [T, U] | undefined {
+export function findMap<T, U>(array: T[], mapper: (value: T) => (U | undefined)): [T, U] | undefined {
   for (let it of array) {
-    let result = map(it);
+    let result = mapper(it);
     if (result !== undefined) {
       return [it, result];
     }

@@ -2,9 +2,9 @@ import { action, computed, makeObservable, observable } from 'mobx';
 import { RouteComponentProps } from 'react-router';
 import { identity, Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
-import { AsyncSwitchStatus, IRouteSwitchStore } from '../async-switch/model';
-import fromReaction from '../helpers/from-reaction';
-import { IAsyncBrowserRouterStore } from './model';
+import { AsyncSwitchStatus, IRouteSwitchStore } from '../async-switch/async-switch.model';
+import { fromReaction } from '../helpers';
+import { IAsyncBrowserRouterStore } from './async-browser-router.model';
 
 export class AsyncBrowserRouterStore implements IAsyncBrowserRouterStore {
 
@@ -12,7 +12,7 @@ export class AsyncBrowserRouterStore implements IAsyncBrowserRouterStore {
   pendingState: RouteComponentProps | null;
 
   get pending(): boolean {
-    return this.children.some(it => it.ownState !== AsyncSwitchStatus.Ready);
+    return this.children.some(it => it.ownStatus !== AsyncSwitchStatus.Ready);
   }
 
   protected children = observable.array<IRouteSwitchStore>([], { deep: false, proxy: false });

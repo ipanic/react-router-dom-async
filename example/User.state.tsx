@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 import { SyntheticEvent, useCallback } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 
-import { AsyncSwitch, IAsyncRoute } from '../src';
+import { AsyncSwitch, IAsyncRoute, useRouteReady } from '../src';
 import { UserProfileState, UserToDoListState } from './states';
 import { AppUser } from './model';
 
@@ -23,6 +23,8 @@ function UserSpace(props: { account: AppUser }) {
     ev.preventDefault();
     h.push('/a/login');
   }, [h]);
+
+  useRouteReady(() => console.error('user state ready!'))
 
   return <div className="User-space">
     <div className="User-space__header">

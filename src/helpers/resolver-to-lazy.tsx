@@ -1,9 +1,8 @@
 import { ComponentType, lazy } from 'react';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 
 export function asyncResolverToLazy(resolver: Observable<ComponentType>) {
-  return lazy(() => resolver
-    .toPromise()
+  return lazy(() => firstValueFrom(resolver)
     .then(component => ({ default: component }))
   );
 }

@@ -1,8 +1,8 @@
 import { observer } from 'mobx-react-lite';
 import { ComponentType, CSSProperties, PropsWithChildren, useEffect, useState } from 'react';
 import { __RouterContext as RouterContext, RouteProps, useHistory } from 'react-router';
-import { IDeclaredRoute } from '..';
-import { RouteParentProvider, useRouteParent } from '../async-browser-router/router-context';
+import { IDeclaredRoute } from '../helpers/model';
+import { RoutingProvider, useRoutingContext } from '../providers';
 import { AsyncSwitchState } from './async-switch.store';
 
 export interface AsyncSwitchProps<TContext> extends RouteProps {
@@ -25,20 +25,17 @@ const HIDE_STYLES: CSSProperties = {
 
 function AsyncSwitchComponent<TContext>(props: AsyncSwitchProps<TContext>) {
   let history = useHistory();
-  let parent = useRouteParent();
+  let parent = useRoutingContext();
 
   let { context, displayName, routes } = props;
   let [state] = useState(() => new AsyncSwitchState(routes, parent, history, context, displayName));
-  if (props.wrapper) {
-
-  } else {}
 
   useEffect(() => () => state.destroy(), [state]);
   useEffect(() => state.syncParent(parent), [parent]);
   useEffect(() => state.syncProps(props), [state, props.routes, props.context]);
 
   return <>
-    {state.committedState && <RouteParentProvider value={state.committedContext} key={state.committedState.match.path}>
+    {state.committedState && <RoutingProvider value={state.committedContext} key={state.committedState.match.path}>
       <RouterContext.Provider value={state.committedState}>
         {props.wrapper
           ? <props.wrapper>
@@ -46,17 +43,17 @@ function AsyncSwitchComponent<TContext>(props: AsyncSwitchProps<TContext>) {
           </props.wrapper>
           : <state.committedState.component/>}
       </RouterContext.Provider>
-    </RouteParentProvider>}
-    {state.pendingState && !state.pendingEqualCommitted && <RouteParentProvider value={state.pendingContext} key={state.pendingState.match.path}>
+    </RoutingProvider>}
+    {state.pendingState && !state.pendingEqualCommitted && <RoutingProvider value={state.pendingContext} key={state.pendingState.match.path}>
       <RouterContext.Provider value={state.pendingState}>
         {props.wrapper
           ? <props.wrapper style={HIDE_STYLES}>
             <state.pendingState.component style={HIDE_STYLES}/>
           </props.wrapper>
           : <state.pendingState.component style={HIDE_STYLES}/>}
-      </RouterContext.Provider>ll
-    </RouteParentProvider>}
+      </RouterContext.Provider>
+    </RoutingProvider>}
   </>;
 }
 
-export default observer(AsyncSwitchComponent);
+export const AsyncSwitch = observer(AsyncSwitchComponent);
