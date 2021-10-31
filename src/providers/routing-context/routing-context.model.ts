@@ -4,6 +4,8 @@ import { IRouteSwitchStore } from '../../async-switch/async-switch.model';
 export interface IRoutingContext {
   readonly pendingState: RouteComponentProps | null;
 
+  readonly committedState: RouteComponentProps | null;
+
   readonly pending: boolean;
 
   addChild(child: IRouteSwitchStore): void;

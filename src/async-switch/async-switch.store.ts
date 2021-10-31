@@ -1,5 +1,5 @@
 import { History } from 'history';
-import { action, computed, makeObservable, observable, reaction, when } from 'mobx';
+import { action, computed, makeObservable, observable, when } from 'mobx';
 import { matchPath, RouteComponentProps } from 'react-router';
 import { asyncScheduler, NEVER, Observable, of, Subject } from 'rxjs';
 import { catchError, filter, map, mergeMap, observeOn, switchMap, takeUntil, tap } from 'rxjs/operators';
@@ -70,8 +70,11 @@ export class AsyncSwitchState<TContext> implements IRouteSwitchStore {
       get pendingState(): IRouterSwitchState | null {
         return self.pendingState;
       },
+      get committedState() {
+        return self.committedState;
+      },
       pending: true
-    }, { pendingState: computed });
+    }, { pendingState: computed, committedState: computed });
 
     this.committedContext = makeObservable({
       addChild: this.addChild,
@@ -81,14 +84,23 @@ export class AsyncSwitchState<TContext> implements IRouteSwitchStore {
       },
       get pending() {
         return self.pending
-      }
-    }, { pendingState: computed });
-
-    reaction(() => this.ownStatus, (to, from) => this.log(`State changed from ${from} to ${to}`));
+      },
+      get committedState() {
+        return self.committedState;
+      },
+    }, { pendingState: computed, committedState: computed });
 
     this.parent$
       .pipe(
-        switchMap(parent => fromReaction(() => parent.pendingState, true)),
+        switchMap(parent => fromReaction(() => {
+          if (parent.pendingState) {
+            return parent.pendingState;
+          } else if (parent.committedState && !this.committedState) {
+            return parent.committedState;
+          } else {
+            return null;
+          }
+        }, true)),
         map(this.resolveMatched),
         switchMap(matchers => {
           if (matchers === null) {
@@ -118,20 +130,16 @@ export class AsyncSwitchState<TContext> implements IRouteSwitchStore {
       )
       .subscribe({
         next: this.setReady,
-        complete: () => this.log('stop watching parent.pendingState!')
       })
 
-    this.log('$Created');
     this.parent.addChild(this);
   }
 
   resolveMatched(pending: RouteComponentProps | null): Matched<TContext> | null {
     if (pending === null) {
-      this.log('Sync path - empty value');
       return null;
     } else {
       let matched = findMap<IDeclaredRoute<TContext>, IUrlMatch>(this.routes, route => matchPath(pending.location.pathname, route.path) || undefined);
-      this.log('Sync path - ' + pending.location.pathname, matched);
 
       if (!matched) {
         throw new NotFoundError(pending.location.pathname + pending.location.search + pending.location.hash);
@@ -143,22 +151,17 @@ export class AsyncSwitchState<TContext> implements IRouteSwitchStore {
 
   resolveState([route, match, { location }]: Matched<TContext>): Observable<ISwitchRouteChangeInfo | null> {
     if (this.pendingState && match.path === this.pendingState.match.path) {
-      this.log('[resolve] matched with pending')
       return of({ ...this.pendingState, location, match });
     } else if (this.committedState && match.path === this.committedState.match.path) {
       if (this.committedState.location.pathname === location.pathname) {
-        this.log('[resolve] matched with committed FULLY', this.committedState.location.pathname, location.pathname);
         this.committedState = { ...this.committedState, location }
         return of(null);
       } else {
-        this.log('[resolve] matched with committed PARTIALLY')
         return of({ component: this.committedState.component, match, location, history: this.history });
       }
     } else if (isCallableObservable(route)) {
-      this.log('[resolve] is callable observable');
       return route.callable(this.context, match).pipe(map(component => ({ component, match, location })))
     } else if (isRedirect(route)) {
-      this.log('[resolve] is redirect')
       let nextStateUrl: string;
       if (typeof route.to === 'function') {
         nextStateUrl = route.to(this.context);
@@ -168,7 +171,6 @@ export class AsyncSwitchState<TContext> implements IRouteSwitchStore {
       this.history.push(nextStateUrl);
       return NEVER;
     } else {
-      this.log('[resolve] else branch')
       return of({ component: route.component, match, location });
     }
   }
@@ -176,11 +178,9 @@ export class AsyncSwitchState<TContext> implements IRouteSwitchStore {
   waitForChildReady() {
     this.ownStatus = AsyncSwitchStatus.WaitingChildReady;
     return new Observable(observer => {
-      this.log('observe for child state')
       let disposer = when(
         () => this.children.every(it => it.ownStatus === AsyncSwitchStatus.Ready),
         () => {
-          this.log('observing for child state completed')
           observer.next(true);
           observer.complete();
           this.setReady();
@@ -188,11 +188,10 @@ export class AsyncSwitchState<TContext> implements IRouteSwitchStore {
       );
 
       return () => disposer();
-    })
+    });
   }
 
   setReady() {
-    this.log('Set ready');
     this.ownStatus = AsyncSwitchStatus.Ready;
     if (this.pendingState) {
       this.committedState = this.pendingState;
@@ -219,13 +218,8 @@ export class AsyncSwitchState<TContext> implements IRouteSwitchStore {
   }
 
   destroy() {
-    this.log('$Destroyed')
     this.destroy$.next(null);
     this.destroy$.complete();
     this.parent.removeChild(this);
-  }
-
-  protected log(message: string, ...args: unknown[]) {
-    console.log(`${this.name}: ${message}`, ...args);
   }
 }

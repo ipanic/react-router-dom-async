@@ -1,12 +1,12 @@
 import { observer } from 'mobx-react-lite';
-import { PropsWithChildren, useEffect, useState } from 'react';
-import { __RouterContext, RouteComponentProps } from 'react-router';
+import { PropsWithChildren, useContext, useEffect, useState } from 'react';
+import { __RouterContext } from 'react-router';
 import { BrowserRouter, BrowserRouterProps } from 'react-router-dom';
-import { AsyncBrowserRouterStore } from './async-browser-router.store';
 import { RoutingProvider } from '../providers';
+import { AsyncBrowserRouterStore } from './async-browser-router.store';
 
-const AsyncBrowserRouterComponent = observer((props: PropsWithChildren<RouteComponentProps>) => {
-  let { children, ...routeProps } = props;
+const AsyncBrowserRouterComponent = observer((props: PropsWithChildren<{}>) => {
+  let routeProps = useContext(__RouterContext);
   let [state] = useState(() => new AsyncBrowserRouterStore(routeProps));
 
   useEffect(() => () => state.destroy(), []);
@@ -22,8 +22,6 @@ const AsyncBrowserRouterComponent = observer((props: PropsWithChildren<RouteComp
 export function AsyncBrowserRouter(props: PropsWithChildren<BrowserRouterProps>) {
   let { children, ...routerProps } = props;
   return <BrowserRouter {...routerProps}>
-    <__RouterContext.Consumer>{ctx =>
-      <AsyncBrowserRouterComponent {...ctx} children={children}/>
-    }</__RouterContext.Consumer>
+    <AsyncBrowserRouterComponent children={children}/>
   </BrowserRouter>
 }

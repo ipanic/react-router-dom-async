@@ -53,9 +53,10 @@ export class AsyncBrowserRouterStore implements IAsyncBrowserRouterStore {
   }
 
   commitLocation() {
-    this.committedState = this.pendingState;
-    this.pendingState = null;
-    console.log('async router -- commit location');
+    if (this.pendingState) {
+      this.committedState = this.pendingState;
+      this.pendingState = null;
+    }
   }
 
   destroy() {

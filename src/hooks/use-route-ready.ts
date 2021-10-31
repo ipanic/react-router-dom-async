@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useRoutingContext } from './routing-context/routing-context';
+import { useRoutingContext } from '../providers';
 
 export function useRouteReady(callback: () => unknown) {
   let routing = useRoutingContext();
