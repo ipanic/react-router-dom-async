@@ -6,7 +6,8 @@ import { AsyncSwitch, IDeclaredRoute } from '../src';
 const ROUTES: IDeclaredRoute<void>[] = [
   {
     path: '/a/login',
-    callable: LoginState
+    callable: LoginState,
+    exact: true
   },
   {
     path: '/a/registration',
@@ -14,7 +15,7 @@ const ROUTES: IDeclaredRoute<void>[] = [
   },
   {
     path: '/a*',
-    to: '/a/login'
+    component: () => <div>404</div>
   }
 ]
 

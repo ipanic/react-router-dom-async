@@ -139,7 +139,13 @@ export class AsyncSwitchState<TContext> implements IRouteSwitchStore {
     if (pending === null) {
       return null;
     } else {
-      let matched = findMap<IDeclaredRoute<TContext>, IUrlMatch>(this.routes, route => matchPath(pending.location.pathname, route.path) || undefined);
+      const matched = findMap<IDeclaredRoute<TContext>, IUrlMatch>(this.routes, route => {
+        const matched = matchPath(pending.location.pathname, route.path) || undefined;
+        if (matched && 'exact' in route && route.exact && route.exact !== matched.isExact) {
+          return undefined;
+        }
+        return matched;
+      });
 
       if (!matched) {
         throw new NotFoundError(pending.location.pathname + pending.location.search + pending.location.hash);

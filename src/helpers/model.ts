@@ -9,11 +9,13 @@ export type ICallableObservableComponent<TContext> = (injector: TContext, match:
 export interface IAsyncRoute<TContext> {
   callable: ICallableObservableComponent<TContext>;
   path: string | string[];
+  exact?: boolean;
 }
 
 export interface ISyncRoute {
   component: ComponentType<{ style?: CSSProperties }>;
   path: string | string[];
+  exact?: boolean;
 }
 
 export interface IRedirectRoute<TContext> {
