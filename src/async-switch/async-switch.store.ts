@@ -159,7 +159,8 @@ export class AsyncSwitchState<TContext> implements IRouteSwitchStore {
     if (this.pendingState && match.path === this.pendingState.match.path) {
       return of({ ...this.pendingState, location, match });
     } else if (this.committedState && match.path === this.committedState.match.path) {
-      if (this.committedState.location.pathname === location.pathname) {
+      if ((this.committedState.location.pathname === location.pathname) &&
+          (this.committedState.location.search === location.search)) {
         this.committedState = { ...this.committedState, location }
         return of(null);
       } else {
